@@ -3,3 +3,5 @@ __init__.py
 checkpoints/
 out/
 figures/
+.idea/
+.ipynb_checkpoints/
