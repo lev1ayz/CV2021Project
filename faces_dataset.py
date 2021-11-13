@@ -44,9 +44,8 @@ class FacesDataset(Dataset):
         if not torch.is_tensor(img):
             img = transforms.ToTensor()(img)
         
-        return img, self.ds_labels[index]
+        return img, self.ds_labels[index].value
 
     def __len__(self):
         """Return the number of images in the dataset."""
         return len(self.ds_paths)
-        
