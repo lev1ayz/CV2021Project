@@ -1,14 +1,11 @@
 """Custom faces dataset."""
 import os
-import enum
 import torch
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
+from LABELS import LABELS
 
-class LABELS(enum.Enum):
-    REAL = 0
-    FAKE = 1
 
 class FacesDataset(Dataset):
     """Faces dataset.
@@ -31,7 +28,7 @@ class FacesDataset(Dataset):
         self.fake_image_paths = [os.path.join(os.path.realpath(self.root_path), 'fake', name) for name in self.fake_image_names]
 
         self.ds_paths = self.real_image_paths + self.fake_image_paths
-        self.ds_labels = [LABELS.REAL] * len(self.real_image_names) + [LABELS.FAKE] * len(self.fake_image_names)
+        self.ds_labels = [LABELS.REAL.value] * len(self.real_image_names) + [LABELS.FAKE.value] * len(self.fake_image_names)
 
     def __getitem__(self, index)  -> tuple[torch.Tensor, int]:
         """Get a sample and label from the dataset."""
