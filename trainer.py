@@ -8,9 +8,9 @@ from torch import nn
 from torch.utils.data import Dataset, DataLoader
 
 from common import OUTPUT_DIR, CHECKPOINT_DIR
+from LABELS import LABELS
 
-
-device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 @dataclass
@@ -58,9 +58,31 @@ class Trainer:
                                       self.batch_size,
                                       shuffle=True)
         print_every = int(len(train_dataloader) / 10)
-
+        print(f'devivce:{device}')
         for batch_idx, (inputs, targets) in enumerate(train_dataloader):
             """INSERT YOUR CODE HERE."""
+            inputs = inputs.to(device)
+            #targets = torch.Tensor([[1, 0] if target == LABELS.REAL.value else [0, 1] for target in targets])
+            targets = targets.to(device)
+            #print(f'targets:{targets} len:{len(targets)}')
+            self.optimizer.zero_grad()
+
+            outputs = self.model(inputs)
+            #print(f'outputs:{outputs}')
+            predictions = torch.Tensor([LABELS.REAL.value if item[0] > item[1] else LABELS.FAKE.value for item in outputs])
+            #print(f'predictions:{predictions} len:{len(predictions)}')
+
+            loss = self.criterion(outputs, targets)
+            #loss = self.criterion(predictions, targets)
+            loss.backward()
+            self.optimizer.step()
+
+            total_loss+= loss.item()
+            avg_loss = total_loss * 1.0 / (batch_idx + 1)
+            nof_samples+= (batch_idx + 1) * self.batch_size
+            correct_labeled_samples += len([item for idx, item in enumerate(predictions) if item == targets[idx]])
+            accuracy = correct_labeled_samples / nof_samples
+
             if batch_idx % print_every == 0 or \
                     batch_idx == len(train_dataloader) - 1:
                 print(f'Epoch [{self.epoch:03d}] | Loss: {avg_loss:.3f} | '
@@ -91,12 +113,26 @@ class Trainer:
         correct_labeled_samples = 0
         print_every = max(int(len(dataloader) / 10), 1)
 
-        for batch_idx, (inputs, targets) in enumerate(dataloader):
-            """INSERT YOUR CODE HERE."""
-            if batch_idx % print_every == 0 or batch_idx == len(dataloader) - 1:
-                print(f'Epoch [{self.epoch:03d}] | Loss: {avg_loss:.3f} | '
-                      f'Acc: {accuracy:.2f}[%] '
-                      f'({correct_labeled_samples}/{nof_samples})')
+        with torch.no_grad():
+            for batch_idx, (inputs, targets) in enumerate(dataloader):
+                """INSERT YOUR CODE HERE."""
+                inputs = inputs.to(device)
+                targets = targets.to(device)
+
+                outputs = self.model(inputs)
+
+                loss = self.criterion(outputs)
+
+                total_loss+= loss.item()
+                avg_loss = total_loss * 1.0 / (batch_idx + 1)
+                nof_samples+= (batch_idx + 1) * self.batch_size
+                correct_labeled_samples += len([item for idx, item in enumerate(outputs) if item == targets[idx]])
+                accuracy = correct_labeled_samples / nof_samples
+
+                if batch_idx % print_every == 0 or batch_idx == len(dataloader) - 1:
+                    print(f'Epoch [{self.epoch:03d}] | Loss: {avg_loss:.3f} | '
+                        f'Acc: {accuracy:.2f}[%] '
+                        f'({correct_labeled_samples}/{nof_samples})')
 
         return avg_loss, accuracy
 
