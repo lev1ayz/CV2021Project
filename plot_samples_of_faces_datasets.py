@@ -4,6 +4,7 @@ import random
 import matplotlib.pyplot as plt
 
 from common import FIGURES_DIR
+from faces_dataset import FacesDataset
 from utils import load_dataset
 
 
@@ -15,10 +16,10 @@ def plot_samples():
     """Load the Deepfakes and Synthetic Faces datasets, sample real and fake
     images from them and plot them in a single image."""
     # create deepfakes dataset
-    fakes_dataset_train = load_dataset('fakes_dataset', 'train')
+    fakes_dataset_train: FacesDataset = load_dataset('fakes_dataset', 'train')
     # sample indices of real and fake images
-    real_image_idx = random.choice(range(int(len(fakes_dataset_train) / 2)))
-    fake_image_idx = random.choice(range(int(len(fakes_dataset_train) / 2),
+    real_image_idx = random.choice(range(int(len(fakes_dataset_train.real_image_names))))
+    fake_image_idx = random.choice(range(int(len(fakes_dataset_train.real_image_names)),
                                          len(fakes_dataset_train)))
     images_samples = plt.figure()
     plt.subplot(2, 2, 1)
