@@ -1,7 +1,5 @@
 __pycache__
 __init__.py
 checkpoints/
-out/
-figures/
 .idea/
 .ipynb_checkpoints/
