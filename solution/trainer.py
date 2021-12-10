@@ -10,7 +10,7 @@ from torch.utils.data import Dataset, DataLoader
 from common import OUTPUT_DIR, CHECKPOINT_DIR
 from LABELS import LABELS
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 @dataclass
 class LoggingParameters:
@@ -56,7 +56,7 @@ class Trainer:
         train_dataloader = DataLoader(self.train_dataset,
                                       self.batch_size,
                                       shuffle=True)
-        print_every = max(int(len(train_dataloader) / 5), 1)
+        print_every = int(len(train_dataloader) / 10)
 
         for batch_idx, (inputs, targets) in enumerate(train_dataloader):
             inputs = inputs.to(device)
@@ -81,7 +81,7 @@ class Trainer:
                     batch_idx == len(train_dataloader) - 1:
                 print(f'Epoch [{self.epoch:03d}] | Loss: {avg_loss:.3f} | '
                       f'Acc: {accuracy:.2f}[%] '
-                      f'Correct:({correct_labeled_samples}/{nof_samples})')
+                      f':({correct_labeled_samples}/{nof_samples})')
 
         return avg_loss, accuracy
 
@@ -105,6 +105,7 @@ class Trainer:
         accuracy = 0
         nof_samples = 0
         correct_labeled_samples = 0
+        print_every = max(int(len(dataloader) / 10), 1)
 
         with torch.no_grad():
             for batch_idx, (inputs, targets) in enumerate(dataloader):
@@ -122,9 +123,10 @@ class Trainer:
                 correct_labeled_samples += len([item for idx, item in enumerate(predictions) if item == targets[idx]])
                 accuracy = correct_labeled_samples * 100.0 / nof_samples
 
-        print(f'Epoch [{self.epoch:03d}] | Loss: {avg_loss:.3f} | '
-            f'Acc: {accuracy:.2f}[%] '
-            f'({correct_labeled_samples}/{nof_samples})')
+                if batch_idx % print_every == 0 or batch_idx == len(dataloader) - 1:
+                        print(f'Epoch [{self.epoch:03d}] | Loss: {avg_loss:.3f} | '
+                            f'Acc: {accuracy:.2f}[%] '
+                            f'({correct_labeled_samples}/{nof_samples})')
 
         return avg_loss, accuracy
 
