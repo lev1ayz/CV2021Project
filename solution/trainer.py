@@ -11,7 +11,6 @@ from common import OUTPUT_DIR, CHECKPOINT_DIR
 from LABELS import LABELS
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = torch.device('cuda')
 
 @dataclass
 class LoggingParameters:
