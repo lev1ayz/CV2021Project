@@ -1,7 +1,6 @@
-__pycache__
-__init__.py
+solution/__pycache__
+solution/__init__.py
+Assigment4_datasets
 checkpoints/
-out/
-figures/
-.idea/
-.ipynb_checkpoints/
+solution/.idea/
+solution/.ipynb_checkpoints/
