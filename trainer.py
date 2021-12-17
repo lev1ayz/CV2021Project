@@ -51,7 +51,7 @@ class Trainer:
         total_loss = 0
         avg_loss = 0
         accuracy = 0
-        nof_samples = len(self.train_dataset)
+        nof_samples = 0
         correct_labeled_samples = 0
 
         train_dataloader = DataLoader(self.train_dataset,
@@ -68,6 +68,7 @@ class Trainer:
             loss.backward()
             self.optimizer.step()
 
+            nof_samples += len(inputs)
             correct_labeled_samples += (predictions.argmax(1) == targets).type(torch.int).sum().item()
             total_loss += loss.item()
             avg_loss = total_loss / (batch_idx + 1)
@@ -99,7 +100,7 @@ class Trainer:
         total_loss = 0
         avg_loss = 0
         accuracy = 0
-        nof_samples = len(dataset)
+        nof_samples = 0
         correct_labeled_samples = 0
         print_every = max(int(len(dataloader) / 10), 1)
 
@@ -110,6 +111,7 @@ class Trainer:
                 predictions = self.model(inputs)
                 loss = self.criterion(predictions, targets)
 
+                nof_samples += len(inputs)
                 correct_labeled_samples += (predictions.argmax(1) == targets).type(torch.int).sum().item()
                 total_loss += loss.item()
                 avg_loss = total_loss / (batch_idx + 1)
