@@ -16,27 +16,35 @@ def my_bonus_model():
     # initialize your model:
     model = get_simclr_based_model()
     # load your model using exactly this line (don't change it):
-    model.load_state_dict(torch.load('checkpoints/bonus_model.pt')['model'])
+    model.load_state_dict(torch.load('./checkpoints/bonus_model.pt')['model'])
     return model
-
+'''
 def get_simclr_based_model() -> nn.Module:
     simclr = ResNet50()
-    state_dict = torch.utils.model_zoo.load_url(model_urls['ResNet50'.lower()])
-    simclr.load_state_dict(state_dict)
+    #state_dict = torch.utils.model_zoo.load_url(model_urls['ResNet50'.lower()])
+    ckpt = torch.load('./checkpoints/resnet50_imagenet_bs2k_epochs200.pth.tar')
+    print(f'ckpt keys:{ckpt.keys()}\nhparams:{ckpt["hparams"]}')
+    #ckpt['hparams'].encoder_ckpt
+    simclr.load_state_dict(ckpt['state_dict'])
 
     simclr.fc = generate_xception_head_mlp()
     print(f'simclr:\n{simclr}')
+    # TODO set base to requires_grad = False?
     
     return simclr
+'''
+
+def get_simclr_based_model() -> nn.Module:
+    model = SimCLRBasedModel()
+    print(f'loaded simclr based model:{model}')
+    return model
 
 class ResNetEncoder(torch_models.resnet.ResNet):
     """Wrapper for TorchVison ResNet Model
     This was needed to remove the final FC Layer from the ResNet Model"""
     def __init__(self, block, layers):
-        super().__init__(block, layers)
-        
+        super().__init__(block, layers)  
         self.fc = None
-        print('** Removing original FC layer **')
 
     def forward(self, x):
         x = self.conv1(x)
@@ -88,11 +96,32 @@ class EncodeProject(nn.Module):
 
         self.projection = nn.Sequential(OrderedDict(projection_layers))
 
-    def forward(self, x, out='z'):
+    def forward(self, x, out='h'):
         h = self.convnet(x)
         if out == 'h':
             return h
         return self.projection(h)
+
+    @classmethod
+    def load(cls, ckpt):    
+        res = cls()
+        res.load_state_dict(ckpt['state_dict'])
+        return res
+
+class SimCLRBasedModel(EncodeProject):
+    def __init__(self) -> None:
+        super().__init__()
+        ckpt = torch.load('./checkpoints/resnet50_imagenet_bs2k_epochs200.pth.tar')
+        self.encoder = EncodeProject.load(ckpt)
+        self.fc = generate_xception_head_mlp() # TODO change this maybe
+
+    def encode(self, x, out='h'):
+        return self.model(x, out=out)
+
+    def forward(self, x):
+        h = self.encoder(x)
+        return self.fc(h)
+    
 
 class BatchNorm1dNoBias(nn.BatchNorm1d):
     def __init__(self, *args, **kwargs):
