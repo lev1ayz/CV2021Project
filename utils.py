@@ -1,5 +1,6 @@
 """Utility methods and constants used throughout the project."""
 import os
+from bonus_model import get_simclr_based_model
 
 import torch
 from torch import nn
@@ -63,6 +64,7 @@ def load_model(model_name: str) -> nn.Module:
     models = {
         'SimpleNet': SimpleNet(),
         'XceptionBased': get_xception_based_model(),
+        'SimCLR' : get_simclr_based_model()
     }
 
     if model_name not in models:
