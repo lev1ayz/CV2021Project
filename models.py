@@ -34,6 +34,20 @@ class SimpleNet(nn.Module):
         return two_way_output
 
 
+def generate_xception_head_mlp() -> nn.Module:
+    mlp = [
+        nn.Linear(2048, 1000),
+        nn.ReLU(inplace=True),
+        nn.Linear(1000, 256),
+        nn.ReLU(inplace=True),
+        nn.Linear(256, 64),
+        nn.ReLU(inplace=True),
+        nn.Linear(64, 2)
+    ]
+
+    return nn.Sequential(*mlp)
+
+
 def get_xception_based_model() -> nn.Module:
     """Return an Xception-Based network.
 
@@ -41,5 +55,6 @@ def get_xception_based_model() -> nn.Module:
     (2) Override `custom_network`'s fc attribute with the binary
     classification head stated in the exercise.
     """
-    """INSERT YOUR CODE HERE, overrun return."""
-    return SimpleNet()
+    custom_network = build_xception_backbone(pretrained=True)
+    custom_network.fc = generate_xception_head_mlp()
+    return custom_network

@@ -62,16 +62,16 @@ class Trainer:
         for batch_idx, (inputs, targets) in enumerate(train_dataloader):
             inputs, targets = inputs.to(device), targets.to(device)
 
-            self.optimizer.zero_grad()
             predictions = self.model(inputs)
             loss = self.criterion(predictions, targets)
+            self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
 
-            correct_labeled_samples += (predictions.argmax(1) == targets).type(torch.int).sum().item()
             nof_samples += len(inputs)
+            correct_labeled_samples += (predictions.argmax(1) == targets).type(torch.int).sum().item()
             total_loss += loss.item()
-            avg_loss = total_loss / nof_samples
+            avg_loss = total_loss / (batch_idx + 1)
             accuracy = correct_labeled_samples * 100 / nof_samples
 
             if batch_idx % print_every == 0 or \
@@ -111,10 +111,10 @@ class Trainer:
                 predictions = self.model(inputs)
                 loss = self.criterion(predictions, targets)
 
-                correct_labeled_samples += (predictions.argmax(1) == targets).type(torch.int).sum().item()
                 nof_samples += len(inputs)
+                correct_labeled_samples += (predictions.argmax(1) == targets).type(torch.int).sum().item()
                 total_loss += loss.item()
-                avg_loss = total_loss / nof_samples
+                avg_loss = total_loss / (batch_idx + 1)
                 accuracy = correct_labeled_samples * 100 / nof_samples
 
                 if batch_idx % print_every == 0 or batch_idx == len(dataloader) - 1:
