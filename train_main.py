@@ -50,6 +50,7 @@ def main():
     # Model
     model_name = args.model
     model = load_model(model_name)
+    print(f'loaded model{model}')
 
     # Loss
     criterion = nn.CrossEntropyLoss()

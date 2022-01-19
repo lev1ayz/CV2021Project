@@ -1,6 +1,6 @@
 """Utility methods and constants used throughout the project."""
 import os
-from bonus_model import get_simclr_based_model
+from bonus_model import DCGAN, Discriminator, Resnet30BasedModel, get_simclr_based_model
 
 import torch
 from torch import nn
@@ -11,9 +11,19 @@ from models import SimpleNet, get_xception_based_model
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+device = 'cpu'
+
 TRANSFORM_TRAIN = transforms.Compose([
     transforms.RandomCrop(256, padding=4),
     transforms.RandomHorizontalFlip(),
+    # add transforms for training
+    # transforms.RandomResizedCrop(size=(256, 256), scale=(0.08, 1)),
+    # transforms.RandomApply([transforms.ColorJitter(0.8*0.5, 
+                                # 0.8*0.5, 
+                                # 0.8*0.5, 
+                                # 0.2*0.5)], p = 0.5),
+    transforms.RandomGrayscale(p=0.2),
+    # end
     transforms.ToTensor(),
     transforms.Normalize((0.4914, 0.4822, 0.4465),
                          (0.2023, 0.1994, 0.2010)),
@@ -47,7 +57,9 @@ def load_dataset(dataset_name: str, dataset_part: str) -> \
         root_path=os.path.join('..',
                                'Assignment4_datasets',
                                dataset_name,
-                               dataset_part),
+                               dataset_part,
+                            #    'fake' # just for training
+                               ),
         transform=transform)
     return dataset
 
@@ -64,7 +76,9 @@ def load_model(model_name: str) -> nn.Module:
     models = {
         'SimpleNet': SimpleNet(),
         'XceptionBased': get_xception_based_model(),
-        'SimCLR' : get_simclr_based_model()
+        # 'SimCLR' : get_simclr_based_model(),
+        'resnet30' : Resnet30BasedModel(),
+        'discriminator': Discriminator() 
     }
 
     if model_name not in models:
