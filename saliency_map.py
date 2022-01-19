@@ -14,7 +14,6 @@ from utils import load_dataset, load_model
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-device = torch.device('cpu')
 
 
 # Arguments
@@ -65,10 +64,8 @@ def compute_gradient_saliency_maps(samples: torch.tensor,
     samples.requires_grad_()
     model.to(device)
     scores = model(samples)
-    #print(f'scores shapes:{scores.shape}\n')
     true_label_scores = scores[range(len(scores)), true_labels]
-    #print(f'true label scores shape:{true_label_scores.shape}\nscores:{true_label_scores}')
-
+    # backward-propagation only works on scalar tensors, sum has weight 1 for each element so doesn't change result
     true_label_scores.sum().backward()
     weight_gradients = samples.grad
     saliency_maps = torch.max(torch.abs(weight_gradients), 1)[0]
