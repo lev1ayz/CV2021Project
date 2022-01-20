@@ -12,7 +12,6 @@ from common import OUTPUT_DIR, CHECKPOINT_DIR
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
 @dataclass
 class LoggingParameters:
     """Data class holding parameters for logging."""
