@@ -31,8 +31,3 @@ class ResnetBasedModel(nn.Module):
         h = self.encoder(x).squeeze()
         out = self.fc(h)
         return out
-        
-class EfficientNetModel(nn.Module):
-    def __init__(self) -> None:
-        super().__init__()
-        self.efficientnet = torch.hub.load('NVIDIA/DeepLearningExamples:torchhub', 'nvidia_efficientnet_b0', pretrained=True)
