@@ -18,7 +18,6 @@ class ResnetBasedModel(nn.Module):
     def __init__(self):
         super().__init__()
         self.encoder = torch_models.resnet18(pretrained=True)
-        print(self.encoder)
         self.encoder = nn.Sequential(*(list(self.encoder.children())[:-1]))
 
         mlp = [
