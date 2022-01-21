@@ -20,11 +20,7 @@ class ResnetBasedModel(nn.Module):
         self.encoder = torch_models.resnet18(pretrained=True)
         self.encoder = nn.Sequential(*(list(self.encoder.children())[:-1]))
 
-        mlp = [
-            nn.Linear(512, 2),
-        ] 
-
-        self.fc = nn.Sequential(*mlp)
+        self.fc = nn.Sequential(nn.Linear(512,2))
 
     def forward(self, x):
         h = self.encoder(x).squeeze()
