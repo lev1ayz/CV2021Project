@@ -62,6 +62,7 @@ def compute_gradient_saliency_maps(samples: torch.tensor,
         shape Bx256x256 where B is the number of images in samples.
     """
     samples.requires_grad_()
+    model.to(device)
     scores = model(samples)
     true_label_scores = scores[range(len(scores)), true_labels]
     # backward-propagation only works on scalar tensors, sum has weight 1 for each element so doesn't change result

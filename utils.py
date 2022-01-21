@@ -7,9 +7,11 @@ from torchvision import transforms
 
 from faces_dataset import FacesDataset
 from models import SimpleNet, get_xception_based_model
+from bonus_model import ResnetBasedModel
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
 TRANSFORM_TRAIN = transforms.Compose([
     transforms.RandomCrop(256, padding=4),
     transforms.RandomHorizontalFlip(),
@@ -63,6 +65,7 @@ def load_model(model_name: str) -> nn.Module:
     models = {
         'SimpleNet': SimpleNet(),
         'XceptionBased': get_xception_based_model(),
+        'resnet' : ResnetBasedModel()
     }
 
     if model_name not in models:

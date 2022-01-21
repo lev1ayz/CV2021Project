@@ -12,7 +12,6 @@ from common import OUTPUT_DIR, CHECKPOINT_DIR
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-
 @dataclass
 class LoggingParameters:
     """Data class holding parameters for logging."""
@@ -61,7 +60,7 @@ class Trainer:
 
         for batch_idx, (inputs, targets) in enumerate(train_dataloader):
             inputs, targets = inputs.to(device), targets.to(device)
-
+            
             predictions = self.model(inputs)
             loss = self.criterion(predictions, targets)
             self.optimizer.zero_grad()
@@ -93,6 +92,7 @@ class Trainer:
             (avg_loss, accuracy): tuple containing the average loss and
             accuracy across all dataset samples.
         """
+        print('evaluating model...')
         self.model.eval()
         dataloader = DataLoader(dataset,
                                 batch_size=self.batch_size,
@@ -107,7 +107,7 @@ class Trainer:
         with torch.no_grad():
             for batch_idx, (inputs, targets) in enumerate(dataloader):
                 inputs, targets = inputs.to(device), targets.to(device)
-
+                
                 predictions = self.model(inputs)
                 loss = self.criterion(predictions, targets)
 
